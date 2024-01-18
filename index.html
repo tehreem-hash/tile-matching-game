@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tile Matching Game</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(5, 80px);
+      gap: 10px;
+    }
+
+    .card {
+      width: 80px;
+      height: 80px;
+      background-color: #eee;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    #score {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="game-board"></div>
+<div id="score">Score: 0</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const tiles = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+    const allCards = [...tiles, ...tiles];
+
+    const gameBoard = document.getElementById('game-board');
+    const scoreDisplay = document.getElementById('score');
+
+    let flippedCards = [];
+    let matchedCards = [];
+    let score = 0;
+
+    function shuffle(array) {
+      let currentIndex = array.length, randomIndex;
+
+      while (currentIndex !== 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+      }
+
+      return array;
+    }
+
+    function createBoard() {
+      const shuffledCards = shuffle(allCards);
+
+      for (let i = 0; i < shuffledCards.length; i++) {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.value = shuffledCards[i];
+        card.addEventListener('click', flipCard);
+        gameBoard.appendChild(card);
+      }
+    }
+
+    function flipCard() {
+      const clickedCard = this;
+
+      if (flippedCards.length < 2 && !flippedCards.includes(clickedCard)) {
+        flippedCards.push(clickedCard);
+        clickedCard.textContent = clickedCard.dataset.value;
+
+        if (flippedCards.length === 2) {
+          setTimeout(checkMatch, 500);
+        }
+      }
+    }
+
+    function checkMatch() {
+      const [card1, card2] = flippedCards;
+
+      if (card1.dataset.value === card2.dataset.value) {
+        matchedCards.push(card1, card2);
+        score += 10;
+        scoreDisplay.textContent = `Score: ${score}`;
+
+        if (matchedCards.length === allCards.length * 2) {
+          alert(`Congratulations! You matched all the tiles. Your final score is ${score}.`);
+        }
+      } else {
+        card1.textContent = '';
+        card2.textContent = '';
+        score -= 1; // Penalty for mismatch
+        score = Math.max(0, score); // Score should not go below 0
+        scoreDisplay.textContent = `Score: ${score}`;
+      }
+
+      flippedCards = [];
+    }
+
+    createBoard();
+  });
+</script>
+
+</body>
+</html>
